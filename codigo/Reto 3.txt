@@ -1,0 +1,53 @@
+#include <Servo.h>
+
+const int trig = 7;
+const int echo = 6;
+const int pinServo = 9;
+
+const int distanciaApertura = 15;
+const int distanciaCierre = 25;
+
+const int posCerrada = 0;
+const int posAbierta = 90;
+
+Servo puerta;
+bool puertaAbierta = false;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  puerta.attach(pinServo);
+  puerta.write(posCerrada);
+}
+
+void loop() {
+  digitalWrite(trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+
+  long tiempo = pulseIn(echo, HIGH);
+  float distancia = tiempo * 0.034 / 2;
+
+  Serial.print("Distancia: ");
+  Serial.print(distancia);
+  Serial.println(" cm");
+
+  if (distancia <= distanciaApertura) {
+    puertaAbierta = true;
+  } else if (distancia >= distanciaCierre) {
+    puertaAbierta = false;
+  }
+
+  if (puertaAbierta) {
+    puerta.write(posAbierta);
+    Serial.println("PUERTA ABIERTA");
+  } else {
+    puerta.write(posCerrada);
+    Serial.println("PUERTA CERRADA");
+  }
+
+  delay(100);
+}
